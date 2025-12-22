@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cf-ddns-operator
+  namespace: networking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cf-ddns-operator
+  template:
+    metadata:
+      labels:
+        app: cf-ddns-operator
+    spec:
+      serviceAccountName: cf-ddns-operator
+      containers:
+        - name: operator
+          image: ghcr.io/your-org/cf-ddns-operator:0.1.0
+          imagePullPolicy: IfNotPresent
+          # If you want to scope the operator to one namespace, run kopf with --namespace in CMD/args.
+          # args: ["run", "-m", "cf_ddns_operator.operator", "--verbose", "--namespace=networking"]
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"

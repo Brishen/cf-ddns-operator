@@ -1,0 +1,18 @@
+apiVersion: dns.cloudflare.example.com/v1alpha1
+kind: CloudflareDNSRecord
+metadata:
+  name: home-public-ip
+  namespace: networking
+spec:
+  zoneName: brishencorp.com
+  recordName: brishencorp.com   # or "@" for apex
+  type: A
+  ttl: 1
+  proxied: false
+  syncIntervalSeconds: 300
+  ip:
+    url: https://api.ipify.org
+    timeoutSeconds: 5
+  secretRef:
+    name: cloudflare-api-token
+    key: token
