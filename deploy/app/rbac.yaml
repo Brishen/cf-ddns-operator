@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cf-ddns-operator
+  namespace: networking
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cf-ddns-operator-framework
+rules:
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cf-ddns-operator
+  namespace: networking
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get"]
+  - apiGroups: [ "dns.cloudflare.com" ]
+    resources: [ "cloudflarednsrecords" ]
+    verbs: [ "get", "list", "watch", "patch", "update" ]
+  - apiGroups: [ "dns.cloudflare.com" ]
+    resources: [ "cloudflarednsrecords/status" ]
+    verbs: [ "get", "patch", "update" ]
+  - apiGroups: [ "dns.cloudflare.com" ]
+    resources: [ "cloudflarednsrecords/finalizers" ]
+    verbs: [ "update" ]
+  - apiGroups: [ "" ]
+    resources: [ "events" ]
+    verbs: [ "create" ]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cf-ddns-operator
+  namespace: networking
+subjects:
+  - kind: ServiceAccount
+    name: cf-ddns-operator
+roleRef:
+  kind: Role
+  name: cf-ddns-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cf-ddns-operator-framework
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cf-ddns-operator-framework
+subjects:
+  - kind: ServiceAccount
+    name: cf-ddns-operator
+    namespace: networking

@@ -1,11 +1,11 @@
-apiVersion: dns.cloudflare.example.com/v1alpha1
+apiVersion: dns.cloudflare.com/v1alpha1
 kind: CloudflareDNSRecord
 metadata:
-  name: home-public-ip
+  name: example-apex
   namespace: networking
 spec:
-  zoneName: brishencorp.com
-  recordName: brishencorp.com   # or "@" for apex
+  zoneName: example.com
+  recordName: "@"
   type: A
   ttl: 1
   proxied: false

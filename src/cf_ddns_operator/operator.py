@@ -11,7 +11,7 @@ import kopf
 from kubernetes_asyncio import client, config
 
 
-GROUP = "dns.cloudflare.example.com"
+GROUP = "dns.cloudflare.com"
 VERSION = "v1alpha1"
 PLURAL = "cloudflarednsrecords"
 
@@ -66,7 +66,7 @@ def _validate_ip(ip_str: str, record_type: CloudflareRecordType) -> str:
 async def _load_kube() -> None:
     # In-cluster first; fall back to local config for dev.
     try:
-        await config.load_incluster_config()
+        config.load_incluster_config()
     except config.ConfigException:
         await config.load_kube_config()
 
