@@ -69,8 +69,10 @@ kopf run -m cf_ddns_operator.operator --verbose
 ```
 
 ## Image
-The `Dockerfile` builds a runnable operator image:
+The `Dockerfile` builds a runnable operator image. Example with Podman:
 
 ```bash
-docker build -t cf-ddns-operator:local .
+podman build -t cf-ddns-operator:local .
+podman tag cf-ddns-operator:local your-registry.example.com/cf-ddns-operator:latest
+podman push your-registry.example.com/cf-ddns-operator:latest
 ```

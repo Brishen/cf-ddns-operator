@@ -49,9 +49,13 @@ def _now_rfc3339() -> str:
 
 
 def _fqdn(zone_name: str, record_name: str) -> str:
-    if record_name == "@":
-        return zone_name.rstrip(".")
-    return record_name.rstrip(".")
+    zone = zone_name.rstrip(".")
+    record = record_name.rstrip(".")
+    if record == "@":
+        return zone
+    if record == zone or record.endswith(f".{zone}"):
+        return record
+    return f"{record}.{zone}"
 
 
 def _validate_ip(ip_str: str, record_type: CloudflareRecordType) -> str:
@@ -172,12 +176,6 @@ async def _reconcile(
 
     async with aiohttp.ClientSession() as session:
         public_ip = await _fetch_public_ip(spec.ip, spec.record_type, session)
-
-        # If no change, no API call.
-        if status.get("currentIP") == public_ip and status.get("zoneId") and status.get("recordId"):
-            patch.status["lastSyncTime"] = _now_rfc3339()
-            patch.status["message"] = f"No change; {fqdn} already {public_ip}"
-            return
 
         token = await _read_secret(namespace, spec.secret_ref)
         cf = CloudflareClient(token=token, session=session)
