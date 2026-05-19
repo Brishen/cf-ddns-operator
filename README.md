@@ -13,32 +13,64 @@ A Kubernetes operator that keeps Cloudflare DNS A/AAAA records updated with your
 - Cloudflare API token with permission to edit DNS records for the target zone.
 
 ## Quick start
-1) Create the CRD and RBAC:
+
+1. Build and push the image to your registry:
 
 ```bash
-kubectl apply -f deploy/crd.yaml
-kubectl apply -f deploy/rbac.yaml
+make image REGISTRY=myregistry.example.com TAG=latest
 ```
 
-2) Create the Cloudflare API token secret:
+2. Update `deploy/app/deployment.yaml` with your image, then install the CRD and operator:
 
 ```bash
-kubectl apply -f deploy/cloudflare-api-token.yaml
+make install-crds
+make install
 ```
 
-3) Deploy the operator:
+3. Create the Cloudflare API token secret (copy and edit the example):
 
 ```bash
-kubectl apply -f deploy/deployment.yaml
+cp deploy/examples/cloudflare-api-token.secret.example.yaml cloudflare-api-token.secret.yaml
+# edit cloudflare-api-token.secret.yaml and replace REPLACE_ME with your token
+kubectl apply -f cloudflare-api-token.secret.yaml
 ```
 
-4) Create one or more records:
+4. Create one or more DNS records (copy and edit the example):
 
 ```bash
-kubectl apply -f deploy/cloudflare-dns-record.yaml
+cp deploy/examples/cloudflare-dns-record.example.yaml my-record.yaml
+# edit my-record.yaml to match your zone and record
+kubectl apply -f my-record.yaml
 ```
 
-Note: The manifests in `deploy/` are templates/examples. Update namespaces, image registry, and record values to match your cluster.
+Note: The manifests in `deploy/` are scoped to the `networking` namespace. Update `deploy/app/` if you want a different namespace or cluster-wide scope.
+
+## Makefile targets
+
+Run `make` with no arguments to list all targets.
+
+| Target                | Description                                                        |
+|-----------------------|--------------------------------------------------------------------|
+| `make build`          | Build the container image                                          |
+| `make push`           | Push the image to the registry                                     |
+| `make image`          | Build and push                                                     |
+| `make install-crds`   | Apply the CRD to the cluster                                       |
+| `make install`        | Apply the operator (namespace, RBAC, Deployment)                   |
+| `make uninstall`      | Remove the operator from the cluster                               |
+| `make uninstall-crds` | Remove the CRD (also deletes all `CloudflareDNSRecord` objects)    |
+| `make run`            | Run the operator locally against your current kubeconfig           |
+| `make lint`           | Run the ruff linter                                                |
+
+### Variables
+
+| Variable         | Default                          | Description                          |
+|------------------|----------------------------------|--------------------------------------|
+| `REGISTRY`       | `ghcr.io/your-org`               | Registry host and path prefix        |
+| `IMAGE`          | `$(REGISTRY)/cf-ddns-operator`   | Full image name                      |
+| `TAG`            | `latest`                         | Image tag                            |
+| `CONTAINER_TOOL` | `docker`                         | Set to `podman` if preferred         |
+
+Override on the command line: `make image REGISTRY=myregistry.example.com TAG=v1.0.0`
 
 ## Custom resource spec
 The `CloudflareDNSRecord` resource supports these fields:
@@ -58,21 +90,12 @@ Status fields include `currentIP`, `zoneId`, `recordId`, `lastSyncTime`, and `me
 
 ## Configuration notes
 - The deployment and RBAC manifests are scoped to the `networking` namespace.
-- The container runs `kopf` with `--namespace=networking`. Update `deploy/deployment.yaml` if you want a different namespace or cluster-wide scope.
+- The container runs `kopf` with `--namespace=networking`. Update `deploy/app/deployment.yaml` if you want a different namespace or cluster-wide scope.
 
 ## Development
 Run locally against your kubeconfig:
 
 ```bash
 pip install -e .
-kopf run -m cf_ddns_operator.operator --verbose
-```
-
-## Image
-The `Dockerfile` builds a runnable operator image. Example with Podman:
-
-```bash
-podman build -t cf-ddns-operator:local .
-podman tag cf-ddns-operator:local your-registry.example.com/cf-ddns-operator:latest
-podman push your-registry.example.com/cf-ddns-operator:latest
+make run
 ```

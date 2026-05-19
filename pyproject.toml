@@ -1,11 +1,12 @@
 [project]
 name = "cf-ddns-operator"
 version = "0.1.0"
-description = "Add your description here"
+description = "Kubernetes operator that keeps Cloudflare DNS A/AAAA records in sync with your current public IP"
 readme = "README.md"
 authors = [
     { name = "Brishen Hawkins", email = "brishen.hawkins@gmail.com" }
 ]
+license = { text = "Apache-2.0" }
 requires-python = ">=3.12"
 dependencies = [
     "aiohttp>=3.13.2",
