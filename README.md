@@ -12,7 +12,48 @@ A Kubernetes operator that keeps Cloudflare DNS A/AAAA records updated with your
 - Kubernetes cluster with RBAC enabled.
 - Cloudflare API token with permission to edit DNS records for the target zone.
 
-## Quick start
+## Install
+
+### One-liner
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Brishen/cf-ddns-operator/master/install.sh | bash
+```
+
+To pin to a specific release, set `CF_DDNS_REF`:
+
+```bash
+CF_DDNS_REF=v1.0.0 curl -fsSL https://raw.githubusercontent.com/Brishen/cf-ddns-operator/master/install.sh | bash
+```
+
+The script applies the CRD and operator manifests directly from GitHub using `kubectl apply -k` and prints the next steps.
+
+### kubectl only
+
+```bash
+kubectl apply -k 'https://github.com/Brishen/cf-ddns-operator//deploy/crds?ref=master'
+kubectl apply -k 'https://github.com/Brishen/cf-ddns-operator//deploy/app?ref=master'
+```
+
+### After installing
+
+Create the Cloudflare API token secret:
+
+```bash
+kubectl create secret generic cloudflare-api-token \
+  --namespace=networking \
+  --from-literal=token=<your-cloudflare-api-token>
+```
+
+Then create a `CloudflareDNSRecord` (see [example](deploy/examples/cloudflare-dns-record.example.yaml)):
+
+```bash
+kubectl apply -f my-record.yaml
+```
+
+Note: Manifests are scoped to the `networking` namespace. Update `deploy/app/` if you want a different namespace or cluster-wide scope.
+
+## Quick start (from source)
 
 1. Build and push the image to your registry:
 
@@ -42,8 +83,6 @@ cp deploy/examples/cloudflare-dns-record.example.yaml my-record.yaml
 # edit my-record.yaml to match your zone and record
 kubectl apply -f my-record.yaml
 ```
-
-Note: The manifests in `deploy/` are scoped to the `networking` namespace. Update `deploy/app/` if you want a different namespace or cluster-wide scope.
 
 ## Makefile targets
 
