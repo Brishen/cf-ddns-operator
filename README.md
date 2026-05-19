@@ -65,7 +65,7 @@ Run `make` with no arguments to list all targets.
 
 | Variable         | Default                          | Description                          |
 |------------------|----------------------------------|--------------------------------------|
-| `REGISTRY`       | `ghcr.io/your-org`               | Registry host and path prefix        |
+| `REGISTRY`       | `ghcr.io/brishen`                | Registry host and path prefix        |
 | `IMAGE`          | `$(REGISTRY)/cf-ddns-operator`   | Full image name                      |
 | `TAG`            | `latest`                         | Image tag                            |
 | `CONTAINER_TOOL` | `docker`                         | Set to `podman` if preferred         |

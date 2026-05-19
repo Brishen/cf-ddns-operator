@@ -1,5 +1,5 @@
 ## Variables — override on the command line or in the environment.
-REGISTRY       ?= ghcr.io/your-org
+REGISTRY       ?= ghcr.io/brishen
 IMAGE          ?= $(REGISTRY)/cf-ddns-operator
 TAG            ?= latest
 CONTAINER_TOOL ?= docker   # set to "podman" if preferred

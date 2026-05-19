@@ -16,7 +16,7 @@ spec:
       serviceAccountName: cf-ddns-operator
       containers:
         - name: operator
-          image: ghcr.io/your-org/cf-ddns-operator:latest  # replace with your image
+          image: ghcr.io/brishen/cf-ddns-operator:latest
           imagePullPolicy: Always
           # If you want to scope the operator to one namespace, run kopf with --namespace in CMD/args.
           # args: ["run", "-m", "cf_ddns_operator.operator", "--verbose", "--namespace=networking"]
